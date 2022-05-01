@@ -126,6 +126,10 @@ class ConciliacionController extends Controller
                                 $q->where('cia', '2')
                                   ->where('cuenta', '13097');
                             });
+                            $query->orWhere(function($q) {
+                                $q->where('cia', '4')
+                                  ->where('cuenta', '13120');
+                            });
                         });
 
         if($tipo_conciliacion == 0) {
@@ -182,6 +186,10 @@ class ConciliacionController extends Controller
                             $query2->orWhere(function($q) {
                                 $q->where('cia', '2')
                                   ->where('cuenta', '13097');
+                            });
+                            $query2->orWhere(function($q) {
+                                $q->where('cia', '4')
+                                  ->where('cuenta', '13120');
                             });
                         });        
         if($tipo_conciliacion == 0) {
@@ -286,6 +294,8 @@ class ConciliacionController extends Controller
                     a.year,
                     a.nropersona,
                     a.importe,
+                    a.nrocuota,
+                    b.cuota,
                     b.cobrado,
                     ROUND((importe + cobrado), 2) dif,
                     ROUND(((importe + cobrado) * 100 / cobrado), 2) dif_porc
@@ -333,12 +343,14 @@ class ConciliacionController extends Controller
                         ->whereRaw('MONTH(pagos.feccobro) = '.$reg->month)
                         ->whereNull('grupo_pago_id')
                         ->where('nropersona', $reg->nropersona)
+                        ->where('cuota', $reg->cuota)
                         ->get();
 
             $cuotas = Cuota::whereRaw('YEAR(cuotas.fechavto) = '.$reg->year)
                         ->whereRaw('MONTH(cuotas.fechavto) = '.$reg->month)
                         ->whereNull('grupo_cuota_id')
                         ->where('nropersona', $reg->nropersona)
+                        ->where('nrocuota', $reg->nrocuota)
                         ->get();
             $tipo = Conciliacion::$TIPOS_CONCILIAICONES['AGRUPADAS_MES_NROPERSONA'];
             $this->conciliarPorIds($pagos->pluck('id'),$cuotas->pluck('id'), false, $tipo);
@@ -618,7 +630,8 @@ class ConciliacionController extends Controller
                 WHERE nro_vinculante is not null 
                 AND nro_vinculante <> 0 
                 AND (if((cuenta = 13017 AND grupo_cuota_id is not null),1,0) = 1 
-                     or if((cuenta = 13097 AND grupo_cuota_id is null),1,0) = 1) 
+                     or if((cuenta = 13097 AND grupo_cuota_id is null),1,0) = 1
+                     or if((cuenta = 13120 AND grupo_cuota_id is null),1,0) = 1) 
                 GROUP BY NRO_VINCULANTE, 
                 MONTH(cuotas.fechavto), 
                 YEAR(cuotas.fechavto) 

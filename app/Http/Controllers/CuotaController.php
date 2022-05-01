@@ -11,6 +11,7 @@ use Log;
 
 class CuotaController extends Controller
 {
+    const cuentas = ['13017','13097','13120'];
 
     public function index() {
         $date = new DateTime('now');
@@ -57,7 +58,7 @@ class CuotaController extends Controller
                                 WHERE     denominacion LIKE '%$request->poliza%'
                                     AND seccion = 33
                                     AND deposito = 33
-                                    AND cuenta in (13017,13097)))";
+                                    AND cuenta in (".implode(',',SELF::cuentas).")))";
 
         return DB::connection('oracle')->select($sql);
     }
@@ -113,7 +114,7 @@ class CuotaController extends Controller
             WHERE
                 c.fechavto >= PRODUCCION.n_Date('{$fecha_comienzo}')
             --AND c.tipocomp IN (316, 325, 373, 319, 320, 380)
-            AND a.cuenta in (13017,13097)
+            AND a.cuenta in (".implode(',',SELF::cuentas).")
             AND a.nrointerno = b.nrointerno
             AND a.nrointerno > '{$max_nrointerno_vt}'
             AND a.resford = c.resford
@@ -145,7 +146,7 @@ class CuotaController extends Controller
                 AND contadocc = 2
                 AND actualizacion = 2
                 AND sistema <> 'FA'
-                AND cuenta in (13017,13097)
+                AND cuenta in (".implode(',',SELF::cuentas).")
                 AND fechavto > n_date ('{$fecha_comienzo}')
                 AND resford  > '{$max_nrointerno_pc}'
             )";

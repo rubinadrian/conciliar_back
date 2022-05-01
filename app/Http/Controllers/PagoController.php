@@ -22,7 +22,7 @@ class PagoController extends Controller
         $query = Pago::select(DB::raw('pagos.*,comentarios.comentario,comentarios.tipo as tipo_comentario'))
         ->doesntHave('grupopagos')
         ->leftJoin('comentarios', 'comentarios.POLIZA', '=', 'pagos.POLIZA')
-        ->whereIn('cia',['1','2'])
+        ->whereIn('cia',['1','2','4'])
         ->where('pagos.tipo','!=', 2)
         ->orderBy('feccobro');
 
@@ -84,8 +84,8 @@ class PagoController extends Controller
                     // array_combine pone el primer array como claves y el segundo como valores.
                     $row = array_combine($header, $row);
                     if($row['POLIZA']=='') continue;
-                    // (1)C.L.S.G. o (2)PERSONAS S.A.
-                    if(!($row['CIA']=='1' || $row['CIA']=='2')) continue; 
+                    // (1)C.L.S.G. o (2)PERSONAS S.A. (4) retiro
+                    if(!($row['CIA']=='1' || $row['CIA']=='2' || $row['CIA']=='4')) continue; 
                     if($row['NRORECIBO'] == 0) {
                         $row['NRORECIBO'] = $row['POLIZA'] . sprintf("%012d", $row['NROLOTE']) . sprintf("%03d", $row['MOVIMIENTO']);
                     }
